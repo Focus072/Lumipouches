@@ -1,0 +1,347 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  FULFILLMENT
+  READ_ONLY
+  CUSTOMER
+}
+
+enum ActorType {
+  SYSTEM
+  USER
+}
+
+enum FlavorType {
+  TOBACCO
+  MENTHOL
+  FRUIT
+  DESSERT
+  OTHER
+}
+
+enum OrderStatus {
+  DRAFT
+  BLOCKED
+  PAID
+  HOLD
+  READY_TO_SHIP
+  SHIPPED
+}
+
+enum AgeVerificationProvider {
+  VERIFF
+}
+
+enum AgeVerificationStatus {
+  PASS
+  FAIL
+}
+
+enum ComplianceCheckResult {
+  PASS
+  FAIL
+}
+
+enum ComplianceDecision {
+  ALLOW
+  BLOCK
+}
+
+enum PaymentProvider {
+  AUTHORIZE_NET
+}
+
+enum PaymentStatus {
+  AUTHORIZED
+  FAILED
+  CAPTURED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         UserRole
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  disabledAt   DateTime? @map("disabled_at")
+
+  sessions     Session[]
+  auditEvents  AuditEvent[] @relation("ActorUser")
+  createdFiles File[]
+  orders       Order[]
+  stakeCalls   StakeCall[]
+  approvedWholesaleAccounts WholesaleAccount[] @relation("ApprovedBy")
+  addresses    Address[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@map("sessions")
+}
+
+model AuditEvent {
+  id           String    @id @default(uuid())
+  actorUserId  String?   @map("actor_user_id")
+  actorType    ActorType @map("actor_type")
+  action       String
+  entityType   String    @map("entity_type")
+  entityId     String?   @map("entity_id")
+  result       String
+  reasonCode   String?   @map("reason_code")
+  metadataJson Json?     @map("metadata_json")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  actorUser User? @relation("ActorUser", fields: [actorUserId], references: [id])
+
+  @@index([createdAt])
+  @@map("audit_events")
+}
+
+model Config {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  valueJson Json     @map("value_json")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([key])
+  @@map("configs")
+}
+
+model File {
+  id             String    @id @default(uuid())
+  bucket         String
+  key            String
+  contentType    String    @map("content_type")
+  sizeBytes      Int       @map("size_bytes")
+  sha256         String
+  createdAt      DateTime  @default(now()) @map("created_at")
+  createdByUserId String?  @map("created_by_user_id")
+
+  createdByUser User? @relation(fields: [createdByUserId], references: [id])
+  wholesaleLicenseFiles WholesaleAccount[]
+  pactReportFiles PactReport[]
+  productImages Product[] @relation("ProductImage")
+
+  @@map("files")
+}
+
+// Products represent nicotine products available for sale
+// Flavor type and sensory cooling are tracked for CA compliance
+model Product {
+  id              String     @id @default(uuid())
+  name            String
+  sku             String     @unique
+  flavorType      FlavorType @map("flavor_type")
+  nicotineMg      Float      @map("nicotine_mg")
+  netWeightGrams  Float      @map("net_weight_grams")
+  price           Decimal    @map("price") @db.Decimal(10, 2)
+  caUtlApproved   Boolean    @default(false) @map("ca_utl_approved")
+  sensoryCooling  Boolean    @default(false) @map("sensory_cooling")
+  active          Boolean    @default(true)
+  imageUrl        String?    @map("image_url")
+  imageFileId     String?    @map("image_file_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  imageFile       File?      @relation("ProductImage", fields: [imageFileId], references: [id])
+  orderItems      OrderItem[]
+
+  @@map("products")
+}
+
+// Addresses store shipping and billing information
+// PO box flag is critical for PACT Act compliance
+model Address {
+  id           String    @id @default(uuid())
+  userId       String?   @map("user_id")
+  recipientName String   @map("recipient_name")
+  phone        String
+  line1        String
+  line2        String?
+  city         String
+  state        String
+  postalCode   String    @map("postal_code")
+  country      String    @default("US")
+  isPoBox      Boolean   @default(false) @map("is_po_box")
+  isDefault    Boolean   @default(false) @map("is_default")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user           User?    @relation(fields: [userId], references: [id])
+  shippingOrders Order[] @relation("ShippingAddress")
+  billingOrders  Order[] @relation("BillingAddress")
+
+  @@map("addresses")
+}
+
+// Orders represent customer purchases
+// Status tracks order lifecycle from draft to shipped
+model Order {
+  id              String      @id @default(uuid())
+  userId          String?     @map("user_id")
+  shippingAddressId String    @map("shipping_address_id")
+  billingAddressId  String    @map("billing_address_id")
+  status          OrderStatus
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  subtotal        Decimal?    @map("subtotal") @db.Decimal(10, 2)
+  taxAmount       Decimal     @map("tax_amount") @db.Decimal(10, 2)
+  exciseTaxAmount Decimal    @map("excise_tax_amount") @db.Decimal(10, 2)
+  carrier         String?     @map("carrier")
+  trackingNumber  String?     @map("tracking_number")
+  shippedAt       DateTime?   @map("shipped_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user            User?       @relation(fields: [userId], references: [id])
+  shippingAddress Address     @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress  Address     @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  items           OrderItem[]
+  ageVerification AgeVerification?
+  complianceSnapshot ComplianceSnapshot?
+  stakeCalls      StakeCall[]
+  payments        Payment[]
+
+  @@index([createdAt])
+  @@index([status])
+  @@map("orders")
+}
+
+// Order items link products to orders with quantity and pricing
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  productId String   @map("product_id")
+  quantity  Int
+  unitPrice Decimal  @map("unit_price") @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// Age verifications record third-party age verification results
+// Required for all orders per federal law
+model AgeVerification {
+  id          String                 @id @default(uuid())
+  orderId     String                 @unique @map("order_id")
+  provider    AgeVerificationProvider
+  status      AgeVerificationStatus
+  referenceId String                 @map("reference_id")
+  reasonCode  String?                @map("reason_code")
+  verifiedAt  DateTime               @map("verified_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("age_verifications")
+}
+
+// Compliance snapshots are IMMUTABLE records of compliance decisions
+// These must never be modified after creation to maintain legal defensibility
+// All compliance checks are evaluated at order time and frozen in this table
+model ComplianceSnapshot {
+  id                      String              @id @default(uuid())
+  orderId                 String              @unique @map("order_id")
+  shippingState           String              @map("shipping_state")
+  caFlavorCheck           ComplianceCheckResult @map("ca_flavor_check")
+  caSensoryCheck          ComplianceCheckResult @map("ca_sensory_check")
+  poBoxCheck              ComplianceCheckResult @map("po_box_check")
+  ageVerificationCheck    ComplianceCheckResult @map("age_verification_check")
+  stakeCallRequired       Boolean             @map("stake_call_required")
+  finalDecision           ComplianceDecision  @map("final_decision")
+  createdAt               DateTime            @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("compliance_snapshots")
+}
+
+// STAKE Act calls record manual phone calls made to verify customer identity
+// Required for certain orders per California STAKE Act
+model StakeCall {
+  id          String   @id @default(uuid())
+  orderId     String   @map("order_id")
+  calledAt    DateTime @map("called_at")
+  adminUserId String   @map("admin_user_id")
+  notes       String?
+
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  adminUser User @relation(fields: [adminUserId], references: [id])
+
+  @@map("stake_calls")
+}
+
+// Wholesale accounts represent B2B customers with licenses
+// License files are stored in the files table
+model WholesaleAccount {
+  id            String    @id @default(uuid())
+  businessName  String    @map("business_name")
+  licenseNumber String    @map("license_number")
+  licenseState  String    @map("license_state")
+  licenseFileId String    @map("license_file_id")
+  approvedAt    DateTime? @map("approved_at")
+  approvedByUserId String? @map("approved_by_user_id")
+
+  licenseFile File? @relation(fields: [licenseFileId], references: [id])
+  approvedBy  User?  @relation("ApprovedBy", fields: [approvedByUserId], references: [id])
+
+  @@map("wholesale_accounts")
+}
+
+// PACT Act reports track monthly state reporting requirements
+// Generated reports are stored as files
+model PactReport {
+  id         String    @id @default(uuid())
+  periodStart DateTime @map("period_start")
+  periodEnd   DateTime @map("period_end")
+  state       String
+  fileId      String    @map("file_id")
+  generatedAt DateTime  @default(now()) @map("generated_at")
+
+  file File @relation(fields: [fileId], references: [id])
+
+  @@map("pact_reports")
+}
+
+// Payments track authorization transactions
+// Only AUTHORIZED payments are stored (no captures yet)
+model Payment {
+  id            String         @id @default(uuid())
+  orderId       String         @map("order_id")
+  provider      PaymentProvider
+  status        PaymentStatus
+  amount        Decimal        @db.Decimal(10, 2)
+  transactionId String         @map("transaction_id")
+  avsResult     String?        @map("avs_result")
+  cvvResult     String?        @map("cvv_result")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("payments")
+}
+
