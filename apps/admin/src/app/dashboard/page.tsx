@@ -115,7 +115,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <div className="text-sm font-medium text-gray-500">Today's Revenue</div>
+          <div className="text-sm font-medium text-gray-500">Today&apos;s Revenue</div>
           <div className="mt-2 text-3xl font-bold text-gray-900">
             ${stats.revenue.today.toFixed(2)}
           </div>
