@@ -77,7 +77,7 @@ export const sendOrderConfirmation = inngest.createFunction(
       const emailHtml = generateOrderConfirmationEmail({
         orderId: order.id,
         customerName: order.shippingAddress.recipientName,
-        orderDate: order.createdAt.toLocaleDateString(),
+        orderDate: new Date(order.createdAt).toLocaleDateString(),
         totalAmount: order.totalAmount.toString(),
         items,
         shippingAddress,
