@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getProducts, type ApiResponse } from '@/lib/api';
 import { useCart } from '@/lib/cart';
 
@@ -27,7 +28,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState('name');
   const { addItem } = useCart();
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getProducts({
@@ -45,11 +46,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, flavorFilter, sortBy]);
 
   useEffect(() => {
     loadProducts();
-  }, [flavorFilter, sortBy]);
+  }, [loadProducts]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,11 +189,13 @@ export default function Home() {
             {products.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow p-6">
                 {product.imageUrl && (
-                  <div className="mb-4 aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img
+                  <div className="mb-4 aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                    <Image
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 )}
