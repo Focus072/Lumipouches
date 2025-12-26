@@ -1,5 +1,11 @@
 # Vercel Deployment Configuration
 
+## ⚠️ IMPORTANT: Root Directory Must Be Set
+
+**You MUST configure the Root Directory in Vercel dashboard settings for each project.**
+
+If you see the error: `No Output Directory named "public" found`, it means Vercel is trying to build from the repository root instead of the app directory.
+
 ## Monorepo Setup
 
 This is a monorepo with multiple applications:
@@ -29,21 +35,31 @@ Each Next.js app should be deployed as a **separate Vercel project** with the fo
 4. **Output Directory**: `.next` (auto-detected)
 5. **Install Command**: `pnpm install --frozen-lockfile` (from repo root)
 
-## Setting Root Directory in Vercel
+## Setting Root Directory in Vercel (REQUIRED)
 
-1. Go to your Vercel project settings
-2. Navigate to **Settings** → **General**
-3. Under **Root Directory**, set:
-   - For admin: `apps/admin`
-   - For storefront: `apps/storefront`
-4. Save the changes
+**This step is MANDATORY. Without it, deployments will fail.**
+
+1. Go to your Vercel project dashboard
+2. Select your project (admin or storefront)
+3. Navigate to **Settings** → **General**
+4. Scroll to **Root Directory** section
+5. Click **Edit** and set:
+   - For admin project: `apps/admin`
+   - For storefront project: `apps/storefront`
+6. Click **Save**
+7. Redeploy your project
+
+**If Root Directory is not set, Vercel will try to build from the repository root and fail with "No Output Directory named 'public' found" error.**
 
 ## Why No Root vercel.json?
 
 The root directory does NOT have a `vercel.json` because:
-- Each app is deployed as a separate project
+- Each app is deployed as a separate Vercel project
 - Each app has its own `vercel.json` configured correctly
-- Having a root `vercel.json` would cause conflicts
+- Vercel uses the `vercel.json` from the Root Directory you configure
+- Having a root `vercel.json` would override the app-specific configurations
+
+**The Root Directory setting in Vercel dashboard tells Vercel which directory to use as the project root, and which `vercel.json` to read.**
 
 ## Build Commands
 
@@ -82,11 +98,21 @@ Set environment variables in each Vercel project:
 
 ### Error: "No Output Directory named 'public' found"
 
-This error occurs when:
-- Root Directory is not set correctly
-- Vercel is trying to build from root instead of the app directory
+**This is the most common error and means Root Directory is not configured.**
 
-**Solution**: Ensure Root Directory is set to `apps/admin` or `apps/storefront` in Vercel project settings.
+This error occurs when:
+- Root Directory is not set in Vercel project settings
+- Vercel defaults to building from repository root
+- Repository root has no `vercel.json` or build output
+
+**Solution (REQUIRED)**:
+1. Go to Vercel project Settings → General
+2. Find **Root Directory** section
+3. Click **Edit** and enter: `apps/admin` (for admin) or `apps/storefront` (for storefront)
+4. Click **Save**
+5. Trigger a new deployment
+
+**This is a Vercel dashboard setting, not a code change. It must be configured for each project.**
 
 ### Build Fails with "Cannot find module"
 
