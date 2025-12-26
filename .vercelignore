@@ -1,0 +1,32 @@
+# Ignore API app (deployed separately to Fly.io)
+apps/api/
+
+# Ignore development files
+*.log
+*.local
+.env.local
+.env*.local
+
+# Ignore build artifacts (except .next which Vercel needs)
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Ignore test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Ignore documentation (not needed for deployment)
+*.md
+!README.md
+
+# Ignore scripts
+scripts/
+
+# Ignore Docker files
+Dockerfile
+docker-compose.yml
+fly.toml
+

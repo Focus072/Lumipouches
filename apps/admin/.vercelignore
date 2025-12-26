@@ -1,0 +1,5 @@
+# Only ignore files not needed for this specific app
+node_modules/
+.env.local
+*.log
+

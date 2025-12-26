@@ -1,7 +1,8 @@
 {
-  "buildCommand": "cd ../.. && pnpm build --filter storefront",
+  "buildCommand": "cd ../.. && pnpm build:storefront",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "nodeVersion": "24.x"
 }
 
