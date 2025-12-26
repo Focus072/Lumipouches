@@ -41,11 +41,11 @@ This is critical! Without approval, pnpm silently skips required native build st
 
 This project uses locked versions for reproducibility:
 
-- **Node**: `18.19.0`
+- **Node**: `24.x` (Vercel requirement)
 - **pnpm**: `10.26.0`
 
 These are specified in `package.json`:
-- `engines.node`: `18.19.0`
+- `engines.node`: `24.x`
 - `engines.pnpm`: `10.26.0`
 - `packageManager`: `pnpm@10.26.0`
 
@@ -109,7 +109,7 @@ Make sure build script approval is committed or handled in Vercel settings.
 ### "Native module build failed"
 
 - Run `pnpm approve-builds` and approve the failing package
-- Ensure correct Node version: `node --version` should be `18.19.0`
+- Ensure correct Node version: `node --version` should be `24.x` or higher
 - Clean install: `rm -rf node_modules && pnpm install`
 
 ### "Build works locally but fails in CI"
