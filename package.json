@@ -8,7 +8,7 @@
     "dev:admin": "pnpm --filter admin dev",
     "dev:storefront": "pnpm --filter storefront dev",
     "dev:inngest": "npx inngest-cli dev",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter db generate && pnpm -r build",
     "db:generate": "pnpm --filter db generate",
     "db:migrate": "pnpm --filter db migrate",
     "db:studio": "pnpm --filter db studio",
@@ -19,8 +19,9 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  }
+    "node": "18.19.0",
+    "pnpm": "10.26.0"
+  },
+  "packageManager": "pnpm@10.26.0"
 }
 
