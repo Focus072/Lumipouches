@@ -15,52 +15,6 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  apps/admin:
-    dependencies:
-      '@lumi/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      next:
-        specifier: ^14.0.4
-        version: 14.2.35(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-      zod:
-        specifier: ^3.22.4
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.27
-      '@types/react':
-        specifier: ^18.2.45
-        version: 18.3.27
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.3.7(@types/react@18.3.27)
-      autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.23(postcss@8.5.6)
-      eslint:
-        specifier: ^8.56.0
-        version: 8.57.1
-      eslint-config-next:
-        specifier: ^14.0.4
-        version: 14.2.35(eslint@8.57.1)(typescript@5.9.3)
-      postcss:
-        specifier: ^8.4.32
-        version: 8.5.6
-      tailwindcss:
-        specifier: ^3.4.0
-        version: 3.4.19(tsx@4.21.0)(yaml@2.8.2)
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
   apps/api:
     dependencies:
       '@aws-sdk/client-s3':
@@ -131,7 +85,7 @@ importers:
         specifier: ^1.1.0
         version: 1.6.1(@types/node@20.19.27)
 
-  apps/storefront:
+  apps/main:
     dependencies:
       '@lumi/shared':
         specifier: workspace:*
