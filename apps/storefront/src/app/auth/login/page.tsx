@@ -31,7 +31,23 @@ export default function LoginPage() {
 
       if (data.success && data.data?.token) {
         localStorage.setItem('auth_token', data.data.token);
-        router.push('/account');
+        
+        // Get user info to check role
+        const userResponse = await fetch(`${API_URL}/me`, {
+          headers: {
+            Authorization: `Bearer ${data.data.token}`,
+          },
+        });
+        
+        const userData = await userResponse.json();
+        const userRole = userData.data?.role;
+        
+        // Redirect based on role
+        if (userRole === 'ADMIN' || userRole === 'FULFILLMENT' || userRole === 'READ_ONLY') {
+          router.push('/dashboard');
+        } else {
+          router.push('/account');
+        }
       } else {
         setError(data.error?.message || 'Login failed');
       }

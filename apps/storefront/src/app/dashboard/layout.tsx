@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getMe } from '@/lib/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin.replace(':3002', ':3001') : 'http://localhost:3001');
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin.replace(':3000', ':3001') : 'http://localhost:3001');
 
 export default function DashboardLayout({
   children,
@@ -19,36 +20,26 @@ export default function DashboardLayout({
     const checkAuth = async () => {
       const token = localStorage.getItem('auth_token');
       if (!token) {
-        router.push('/login');
+        router.push('/auth/login');
         return;
       }
 
-      try {
-        const response = await fetch(`${API_URL}/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          localStorage.removeItem('auth_token');
-          router.push('/login');
-          return;
-        }
-
-        const data = await response.json();
-        if (data.success && data.data) {
-          setUser(data.data);
-        } else {
-          router.push('/login');
-        }
-      } catch (err) {
+      const response = await getMe();
+      if (!response.success || !response.data) {
         localStorage.removeItem('auth_token');
-        router.push('/login');
-      } finally {
-        setLoading(false);
+        router.push('/auth/login');
+        return;
       }
+
+      const userRole = response.data.role;
+      // Only allow admin roles
+      if (userRole !== 'ADMIN' && userRole !== 'FULFILLMENT' && userRole !== 'READ_ONLY') {
+        router.push('/account');
+        return;
+      }
+
+      setUser(response.data);
+      setLoading(false);
     };
 
     checkAuth();
@@ -70,7 +61,7 @@ export default function DashboardLayout({
       }
     }
     localStorage.removeItem('auth_token');
-    router.push('/login');
+    router.push('/');
   };
 
   if (loading) {
@@ -131,4 +122,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-

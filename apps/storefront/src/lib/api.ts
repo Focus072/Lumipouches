@@ -237,3 +237,330 @@ export async function deleteSavedAddress(id: string) {
   });
 }
 
+// ===== ADMIN API FUNCTIONS =====
+
+// Helper function to get auth token for admin requests
+async function getAuthToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth_token');
+}
+
+// Admin Orders API
+export async function getOrders(params?: {
+  status?: string;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+  startDate?: string;
+  endDate?: string;
+  statuses?: string[];
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  const query = new URLSearchParams();
+  if (params?.status) query.append('status', params.status);
+  if (params?.search) query.append('search', params.search);
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+  if (params?.startDate) query.append('startDate', params.startDate);
+  if (params?.endDate) query.append('endDate', params.endDate);
+  if (params?.statuses) {
+    params.statuses.forEach(s => query.append('statuses', s));
+  }
+  
+  const queryString = query.toString();
+  return apiRequest(`/admin/orders${queryString ? `?${queryString}` : ''}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function getOrder(id: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/orders/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function logStakeCall(orderId: string, notes: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/orders/${orderId}/stake-call`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ notes }),
+  });
+}
+
+export async function shipOrder(orderId: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/orders/${orderId}/ship`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+// Admin Products API
+export async function getAdminProducts(params?: { page?: number; pageSize?: number; search?: string; active?: boolean }) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  const query = new URLSearchParams();
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+  if (params?.search) query.append('search', params.search);
+  if (params?.active !== undefined) query.append('active', params.active.toString());
+  
+  const queryString = query.toString();
+  return apiRequest(`/admin/products${queryString ? `?${queryString}` : ''}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function getProduct(id: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function createProduct(data: {
+  name: string;
+  sku: string;
+  flavorType: string;
+  nicotineMg: number;
+  netWeightGrams: number;
+  price: number;
+  caUtlApproved?: boolean;
+  sensoryCooling?: boolean;
+  active?: boolean;
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest('/admin/products', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateProduct(id: string, data: {
+  name?: string;
+  sku?: string;
+  flavorType?: string;
+  nicotineMg?: number;
+  netWeightGrams?: number;
+  price?: number;
+  caUtlApproved?: boolean;
+  sensoryCooling?: boolean;
+  active?: boolean;
+  imageUrl?: string | null;
+  imageFileId?: string | null;
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/products/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteProduct(id: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/products/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function presignFileUpload(data: { key: string; contentType: string; sizeBytes: number }) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest('/admin/files/presign', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateProductImage(id: string, data: { imageUrl?: string; imageFileId?: string }) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/products/${id}/image`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+// Admin Users API
+export async function getUsers(params?: { page?: number; pageSize?: number; search?: string; role?: string }) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  const query = new URLSearchParams();
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+  if (params?.search) query.append('search', params.search);
+  if (params?.role) query.append('role', params.role);
+  
+  const queryString = query.toString();
+  return apiRequest(`/admin/users${queryString ? `?${queryString}` : ''}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function getUser(id: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function createUser(data: {
+  email: string;
+  password: string;
+  role: string;
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest('/admin/users', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateUser(id: string, data: {
+  email?: string;
+  role?: string;
+  disabled?: boolean;
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/users/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUser(id: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/users/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+export async function resetUserPassword(id: string, newPassword: string) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest(`/admin/users/${id}/reset-password`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ newPassword }),
+  });
+}
+
+// Dashboard Analytics API
+export async function getDashboardStats() {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest('/admin/dashboard/stats', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+// Reports API
+export async function generatePactReport(params: {
+  state: string;
+  periodStart: string;
+  periodEnd: string;
+}) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  return apiRequest('/admin/reports/pact', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
+}
+
+// Audit API
+export async function getAuditEvents(params?: { page?: number; pageSize?: number }) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } };
+  
+  const query = new URLSearchParams();
+  if (params?.page) query.append('page', params.page.toString());
+  if (params?.pageSize) query.append('pageSize', params.pageSize.toString());
+  
+  const queryString = query.toString();
+  return apiRequest(`/admin/audit-events${queryString ? `?${queryString}` : ''}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

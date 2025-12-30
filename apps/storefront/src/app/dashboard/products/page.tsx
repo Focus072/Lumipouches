@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { getProducts, deleteProduct, type ApiResponse } from '@/lib/api';
+import { getAdminProducts, deleteProduct, type ApiResponse } from '@/lib/api';
 
 interface Product {
   id: string;
@@ -32,7 +32,7 @@ export default function ProductsPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await getProducts({
+      const response = await getAdminProducts({
         page,
         pageSize,
         search: searchQuery || undefined,
@@ -231,4 +231,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
