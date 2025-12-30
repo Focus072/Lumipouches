@@ -126,10 +126,10 @@ export default function OrderDetailPage() {
       if (response.success) {
         loadOrder(); // Reload order
       } else {
-        const reasons = response.error?.reasons || [];
+        const reasonCodes = response.error?.reasonCodes || [];
         setActionError(
-          response.error?.message || 'Failed to ship order' +
-          (reasons.length > 0 ? `: ${reasons.join(', ')}` : '')
+          (response.error?.message || 'Failed to ship order') +
+          (reasonCodes.length > 0 ? `: ${reasonCodes.join(', ')}` : '')
         );
       }
     } catch (err) {
