@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm build:storefront",
-  "outputDirectory": "apps/storefront/.next",
+  "buildCommand": "pnpm build:main",
+  "outputDirectory": "apps/main/.next",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs"
 }

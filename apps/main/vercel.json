@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm build:storefront",
+  "buildCommand": "cd ../.. && pnpm build:main",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
