@@ -80,10 +80,16 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Get products error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
       {
         success: false,
-        error: { code: 'INTERNAL_ERROR', message: 'An error occurred' },
+        error: { 
+          code: 'INTERNAL_ERROR', 
+          message: process.env.NODE_ENV === 'production' ? 'An error occurred' : errorMessage,
+          ...(process.env.NODE_ENV !== 'production' && { stack: errorStack }),
+        },
       },
       { status: 500 }
     );
