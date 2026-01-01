@@ -11,14 +11,15 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.490.0",
     "@aws-sdk/s3-request-presigner": "^3.490.0",
-    "@lumi/shared": "workspace:*",
-    "@lumi/db": "workspace:*",
     "@lumi/compliance-core": "workspace:*",
+    "@lumi/db": "workspace:*",
+    "@lumi/shared": "workspace:*",
     "bcryptjs": "^3.0.3",
     "inngest": "^3.12.1",
     "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "serve": "^14.2.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -34,4 +35,3 @@
     "typescript": "^5.3.3"
   }
 }
-
