@@ -1,239 +1,290 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { getProducts, type ApiResponse } from '@/lib/api';
-import { useCart } from '@/lib/cart';
+import { useRouter } from 'next/navigation';
 
-interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  flavorType: string;
-  nicotineMg: number;
-  netWeightGrams: number;
-  caUtlApproved: boolean;
-  sensoryCooling: boolean;
-  imageUrl?: string | null;
-  price: string;
-}
-
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function LandingPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [flavorFilter, setFlavorFilter] = useState('');
-  const [sortBy, setSortBy] = useState('name');
-  const { addItem } = useCart();
 
-  const loadProducts = useCallback(async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
-      const response = await getProducts({
-        search: searchQuery || undefined,
-        flavorType: flavorFilter || undefined,
-        sort: sortBy,
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      if (response.success && response.data) {
-        setProducts(response.data);
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (data.data?.token) {
+          localStorage.setItem('auth_token', data.data.token);
+          
+          // Get user info to check role for proper redirect
+          const userResponse = await fetch('/api/me', {
+            headers: {
+              Authorization: `Bearer ${data.data.token}`,
+            },
+          });
+          
+          const userData = await userResponse.json();
+          const userRole = userData.data?.role;
+          
+          // Redirect based on role
+          if (userRole === 'ADMIN' || userRole === 'FULFILLMENT' || userRole === 'READ_ONLY') {
+            router.push('/dashboard');
+          } else {
+            router.push('/account');
+          }
+          router.refresh();
+        } else {
+          // No token but successful (signup), redirect to login
+          if (!isLogin) {
+            setIsLogin(true);
+            setError('');
+            alert('Registration successful! Please log in.');
+          }
+        }
       } else {
-        setError(response.error?.message || 'Failed to load products');
+        setError(data.error?.message || 'An error occurred');
       }
     } catch (err) {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, flavorFilter, sortBy]);
-
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    loadProducts();
-  };
-
-  const handleAddToCart = (product: Product) => {
-    addItem(product, 1);
-  };
-
-  const getFlavorTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      TOBACCO: 'Tobacco',
-      MENTHOL: 'Menthol',
-      FRUIT: 'Fruit',
-      DESSERT: 'Dessert',
-      OTHER: 'Other',
-    };
-    return labels[type] || type;
-  };
-
-  const isCaRestricted = (product: Product) => {
-    return product.flavorType !== 'TOBACCO' || product.sensoryCooling || !product.caUtlApproved;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Warning Banner */}
+      <div className="bg-black text-white py-2 text-center text-sm font-semibold">
+        WARNING: This product contains nicotine. Nicotine is an addictive chemical.
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Lumi</h1>
             <div className="flex items-center space-x-4">
-              {typeof window !== 'undefined' && localStorage.getItem('auth_token') ? (
-                <>
-                  <Link
-                    href="/account"
-                    className="px-4 py-2 text-gray-700 hover:text-gray-900"
-                  >
-                    My Account
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="px-4 py-2 text-gray-700 hover:text-gray-900"
-                  >
-                    Orders
-                  </Link>
-                </>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-gray-700 hover:text-gray-900"
-                >
-                  Sign In
-                </Link>
-              )}
-              <Link
-                href="/cart"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-              >
-                Cart
+              <button className="lg:hidden text-white focus:outline-none">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <Link href="/" className="text-2xl font-bold">
+                LUMI
               </Link>
             </div>
+            <Link href="/auth/login" className="text-sm hover:underline flex items-center space-x-1">
+              <span>ACCOUNT</span>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Age Warning */}
-      <div className="bg-red-600 text-white py-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm font-semibold">
-          ⚠️ 21+ ONLY - Adult signature required at delivery
-        </div>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1">
+        {/* Welcome Section */}
+        <section className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h1 className="text-4xl font-bold text-center text-gray-900 mb-8">
+            WELCOME TO LUMIPOUCHES.COM
+          </h1>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filters */}
-        <div className="mb-6 space-y-4">
-          <form onSubmit={handleSearch} className="flex gap-4">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button
-              type="submit"
-              className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
-              Search
-            </button>
-          </form>
-          
-          <div className="flex gap-4 items-center">
-            <label className="text-sm font-medium text-gray-700">Filter by Flavor:</label>
-            <select
-              value={flavorFilter}
-              onChange={(e) => setFlavorFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All Flavors</option>
-              <option value="TOBACCO">Tobacco</option>
-              <option value="MENTHOL">Menthol</option>
-              <option value="FRUIT">Fruit</option>
-              <option value="DESSERT">Dessert</option>
-              <option value="OTHER">Other</option>
-            </select>
-
-            <label className="text-sm font-medium text-gray-700 ml-4">Sort by:</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="name">Name (A-Z)</option>
-              <option value="price-asc">Price (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
-              <option value="nicotine-asc">Nicotine (Low to High)</option>
-              <option value="nicotine-desc">Nicotine (High to Low)</option>
-            </select>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-800">{error}</div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="text-center py-12 text-gray-600">Loading products...</div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12 text-gray-600">No products available</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow p-6">
-                {product.imageUrl && (
-                  <div className="mb-4 aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
-                )}
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">{product.name}</h2>
-                  {isCaRestricted(product) && (
-                    <span className="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800 rounded">
-                      CA Restricted
-                    </span>
-                  )}
+          {/* Login/Register Form */}
+          <div className="bg-white border border-gray-300 rounded-lg p-8 shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  {error}
                 </div>
+              )}
 
-                <div className="space-y-2 text-sm text-gray-600 mb-4">
-                  <div>
-                    <span className="font-medium">SKU:</span> {product.sku}
-                  </div>
-                  <div>
-                    <span className="font-medium">Flavor:</span> {getFlavorTypeLabel(product.flavorType)}
-                  </div>
-                  <div>
-                    <span className="font-medium">Nicotine:</span> {product.nicotineMg}mg
-                  </div>
-                  <div>
-                    <span className="font-medium">Weight:</span> {product.netWeightGrams}g
-                  </div>
-                </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your email"
+                />
+              </div>
 
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  id="remember"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                  Remember me?
+                </label>
+              </div>
+
+              <div className="flex space-x-4">
                 <button
-                  onClick={() => handleAddToCart(product)}
-                  className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add to Cart
+                  {loading ? 'LOADING...' : isLogin ? 'LOG IN' : 'REGISTER'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setError('');
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-md font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  {isLogin ? 'REGISTER' : 'LOG IN'}
                 </button>
               </div>
-            ))}
+
+              <div className="text-center space-y-2">
+                <Link href="/auth/login" className="text-sm text-blue-600 hover:underline block">
+                  Reset/Forgot password?
+                </Link>
+                <div className="text-sm text-gray-600">
+                  Or{' '}
+                  <Link href="/products" className="text-blue-600 hover:underline font-medium">
+                    shop now
+                  </Link>
+                </div>
+              </div>
+            </form>
           </div>
-        )}
+
+          {/* Age Verification Disclaimer */}
+          <div className="mt-8 text-center text-sm text-gray-600 space-y-2">
+            <p className="font-semibold">LUMI IS FOR ADULT NICOTINE CONSUMERS 21+ ONLY.</p>
+            <p>
+              By accessing this website, you confirm that you are of legal age to purchase nicotine products in your jurisdiction.
+              Age verification will be required upon checkout and delivery.
+            </p>
+            <p className="text-xs mt-4">
+              WARNING: This product contains nicotine. Nicotine is an addictive chemical. Keep out of reach of children and pets.
+            </p>
+          </div>
+        </section>
+
+        {/* Rewards Section */}
+        <section className="bg-blue-600 text-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">LUMI REWARDS</h2>
+            <p className="text-xl mb-6">SCAN THE CAN. COLLECT POINTS. START SHOPPING.</p>
+            <Link
+              href="/dashboard"
+              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors"
+            >
+              ENTER CODES
+            </Link>
+          </div>
+        </section>
+
+        {/* More Reasons Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            MORE REASONS TO LOVE LUMI
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🚀</div>
+              <h3 className="text-xl font-semibold mb-2">Fast Delivery</h3>
+              <p className="text-gray-600">Quick and reliable shipping to your door</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">⭐</div>
+              <h3 className="text-xl font-semibold mb-2">Premium Quality</h3>
+              <p className="text-gray-600">Premium nicotine pouches you can trust</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">🎁</div>
+              <h3 className="text-xl font-semibold mb-2">Exclusive Rewards</h3>
+              <p className="text-gray-600">Earn points with every purchase</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Promotional Banner */}
+        <section className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-4xl font-bold mb-4">LUMI GO FOR IT GIVEAWAY</h2>
+            <p className="text-xl mb-8">EPISODE 2 IS HERE</p>
+            <button className="bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors">
+              WATCH NOW
+            </button>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">FOLLOW US</h3>
+              <div className="space-y-2">
+                <a href="#" className="block hover:underline">Facebook</a>
+                <a href="#" className="block hover:underline">Instagram</a>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">LEGAL</h3>
+              <div className="space-y-2">
+                <Link href="#" className="block hover:underline">WEBSITE TERMS OF USE</Link>
+                <Link href="#" className="block hover:underline">PRIVACY POLICY</Link>
+                <Link href="#" className="block hover:underline">TERMS AND CONDITIONS</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">CONTACT</h3>
+              <p className="text-sm text-gray-400">
+                MAILING ADDRESS<br />
+                Lumi Pouches<br />
+                United States
+              </p>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+            <p>©2025 LUMI POUCHES. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
