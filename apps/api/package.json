@@ -34,6 +34,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "create-admin": "tsx src/scripts/create-admin.ts",
+    "check-admin": "tsx src/scripts/check-admin.ts",
     "test": "pnpm --filter @lumi/compliance-core... build && vitest run",
     "test:watch": "pnpm --filter @lumi/compliance-core... build && vitest",
     "lint": "echo 'Linter not configured'",
