@@ -37,30 +37,26 @@ Your database is connected to Neon PostgreSQL:
 
 You need **3 separate terminals**:
 
-#### Terminal 1: Inngest Dev Server (Optional - for background jobs)
-```bash
-pnpm dev:inngest
-# Or: npx inngest-cli dev
-```
-This starts Inngest on port 8288 for background job processing.
-
-#### Terminal 2: API Server
-```bash
-pnpm dev:api
-```
-This starts the Fastify API server on **port 3001**.
-
-#### Terminal 3: Main App (Storefront + Admin)
+#### Single Command (Recommended):
 ```bash
 pnpm dev:main
 ```
-This starts the Next.js app on **port 3000**.
+This runs **all three services together**:
+- Inngest dev server (port 8288)
+- API server (port 3001)
+- Main app (port 3000)
 
-**OR run both API and Main together:**
+**OR run just API and Main together:**
 ```bash
 pnpm dev
 ```
-This runs both API and Main app in parallel.
+This runs both API and Main app in parallel (without Inngest).
+
+#### Individual Services (if needed):
+```bash
+pnpm dev:api      # API server only
+pnpm dev:inngest  # Inngest dev server only
+```
 
 ### 6. Access Your Apps
 
