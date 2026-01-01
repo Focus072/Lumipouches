@@ -182,7 +182,6 @@ importers:
       '@prisma/client':
         specifier: ^5.7.1
         version: 5.22.0(prisma@5.22.0)
-    devDependencies:
       prisma:
         specifier: ^5.7.1
         version: 5.22.0
