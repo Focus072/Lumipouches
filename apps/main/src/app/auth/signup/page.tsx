@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -35,7 +34,7 @@ export default function SignupPage() {
     try {
       // Note: This assumes a customer signup endpoint exists
       // For now, we'll need to create this endpoint or use a workaround
-      const response = await fetch(`${API_URL}/auth/signup`, {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,9 +1,9 @@
 /**
  * Storefront API Client
- * Handles requests to the backend API
+ * Handles requests to the backend API (Next.js API routes)
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin.replace(':3000', ':3001') : 'http://localhost:3001');
+const API_URL = '';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -20,7 +20,7 @@ export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_URL}/api${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

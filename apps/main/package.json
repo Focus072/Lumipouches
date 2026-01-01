@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.490.0",
+    "@aws-sdk/s3-request-presigner": "^3.490.0",
     "@lumi/shared": "workspace:*",
     "@lumi/db": "workspace:*",
     "@lumi/compliance-core": "workspace:*",

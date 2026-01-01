@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
 export default function LoginPageClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -21,7 +19,7 @@ export default function LoginPageClient() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -33,7 +31,7 @@ export default function LoginPageClient() {
         localStorage.setItem('auth_token', data.data.token);
         
         // Get user info to check role
-        const userResponse = await fetch(`${API_URL}/me`, {
+        const userResponse = await fetch('/api/me', {
           headers: {
             Authorization: `Bearer ${data.data.token}`,
           },

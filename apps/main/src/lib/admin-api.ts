@@ -1,13 +1,9 @@
 /**
  * Admin API Client (Storefront)
- * Uses the same backend API, but targets /admin routes.
+ * Uses Next.js API routes, targets /admin routes.
  */
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== 'undefined'
-    ? window.location.origin.replace(':3000', ':3001')
-    : 'http://localhost:3001');
+const API_URL = '';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -31,7 +27,7 @@ export async function apiRequest<T = any>(
 ): Promise<ApiResponse<T>> {
   const token = await getAuthToken();
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_URL}/api${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

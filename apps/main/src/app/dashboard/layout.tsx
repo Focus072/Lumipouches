@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getMe } from '@/lib/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin.replace(':3000', ':3001') : 'http://localhost:3001');
 
 export default function DashboardLayout({
   children,
@@ -49,7 +48,7 @@ export default function DashboardLayout({
     const token = localStorage.getItem('auth_token');
     if (token) {
       try {
-        await fetch(`${API_URL}/auth/logout`, {
+        await fetch('/api/auth/logout', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
