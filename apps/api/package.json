@@ -30,6 +30,7 @@
     "vitest": "^1.1.0"
   },
   "scripts": {
+    "predev": "pnpm --filter db build && pnpm --filter @lumi/shared build && pnpm --filter @lumi/compliance-core build",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
