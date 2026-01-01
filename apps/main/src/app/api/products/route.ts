@@ -74,9 +74,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Convert Decimal to string for JSON serialization
+    const serializedProducts = products.map(product => ({
+      ...product,
+      price: product.price.toString(),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: products,
+      data: serializedProducts,
     });
   } catch (error) {
     console.error('Get products error:', error);
