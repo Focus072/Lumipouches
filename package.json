@@ -9,7 +9,7 @@
     "dev:inngest": "npx inngest-cli dev",
     "build": "pnpm --filter db generate && pnpm --filter db build && pnpm --filter @lumi/shared build && pnpm --filter main build",
     "build:api": "pnpm --filter db generate && pnpm --filter @lumi/shared build && pnpm --filter @lumi/compliance-core build && pnpm --filter api build",
-    "build:main": "pnpm --filter db generate && pnpm --filter db build && pnpm --filter @lumi/shared build && pnpm --filter main build",
+    "build:main": "pnpm --filter db generate && pnpm --filter db build && pnpm --filter @lumi/shared build && pnpm --filter @lumi/compliance-core build && pnpm --filter main build",
     "db:generate": "pnpm --filter db generate",
     "db:migrate": "pnpm --filter db migrate",
     "db:studio": "pnpm --filter db studio",
