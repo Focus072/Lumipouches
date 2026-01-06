@@ -9,7 +9,12 @@
  * - SENDGRID_API_KEY=your_api_key
  * - EMAIL_FROM=noreply@yourdomain.com
  * - EMAIL_FROM_NAME=Lumi Commerce
+ * 
+ * Security:
+ * - HTTPS/SSL verification enforced
  */
+
+import { secureFetch } from '@/lib/security/secure-fetch';
 
 export interface EmailOptions {
   to: string | string[];
@@ -56,7 +61,9 @@ async function sendEmailViaSendGrid(options: EmailOptions & { from: string; from
   const recipients = Array.isArray(options.to) ? options.to : [options.to];
 
   try {
-    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    // Ensure HTTPS and SSL verification
+    const sendGridUrl = 'https://api.sendgrid.com/v3/mail/send';
+    const response = await secureFetch(sendGridUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

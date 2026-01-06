@@ -8,7 +8,10 @@
  * - No PII logging
  * - Timeout handling
  * - Fail-closed on errors
+ * - HTTPS/SSL verification enforced
  */
+
+import { secureFetch } from '@/lib/security/secure-fetch';
 
 export interface ShippoAddress {
   name: string;
@@ -121,7 +124,7 @@ export async function createShippingLabel(request: ShippoRequest): Promise<Shipp
 
   try {
     // Step 1: Create shipment
-    const shipmentResponse = await fetch(SHIPPO_API_URL, {
+    const shipmentResponse = await secureFetch(SHIPPO_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `ShippoToken ${SHIPPO_TOKEN}`,
@@ -144,7 +147,7 @@ export async function createShippingLabel(request: ShippoRequest): Promise<Shipp
     // Step 2: Get rates (UPS only)
     const shipmentId = shipment.object_id || shipment.objectId || shipment.id;
     const ratesUrl = `${SHIPPO_API_URL}/${shipmentId}/rates/UPS/`;
-    const ratesResponse = await fetch(ratesUrl, {
+    const ratesResponse = await secureFetch(ratesUrl, {
       method: 'GET',
       headers: {
         'Authorization': `ShippoToken ${SHIPPO_TOKEN}`,
@@ -185,7 +188,7 @@ export async function createShippingLabel(request: ShippoRequest): Promise<Shipp
       },
     };
 
-    const transactionResponse = await fetch('https://api.goshippo.com/transactions', {
+    const transactionResponse = await secureFetch('https://api.goshippo.com/transactions', {
       method: 'POST',
       headers: {
         'Authorization': `ShippoToken ${SHIPPO_TOKEN}`,

@@ -9,9 +9,11 @@
  * - No PII logging
  * - Timeout handling
  * - Fail-closed on errors
+ * - HTTPS/SSL verification enforced
  */
 
 import crypto from 'crypto';
+import { secureFetch } from '@/lib/security/secure-fetch';
 import type {
   VeriffVerificationRequest,
   VeriffVerificationResponse,
@@ -107,7 +109,7 @@ async function createVerificationSession(
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
   try {
-    const response = await fetch(`${VERIFF_BASE_URL}${path}`, {
+    const response = await secureFetch(`${VERIFF_BASE_URL}${path}`, {
       method: 'POST',
       headers: createSignedHeaders('POST', path, body),
       body,
@@ -161,7 +163,7 @@ async function pollVerificationDecision(
 
     try {
       const body = '';
-      const response = await fetch(`${VERIFF_BASE_URL}${path}`, {
+      const response = await secureFetch(`${VERIFF_BASE_URL}${path}`, {
         method: 'GET',
         headers: createSignedHeaders('GET', path, body),
         signal: controller.signal,

@@ -8,7 +8,10 @@
  * - No card data stored
  * - AVS and CVV checks enforced
  * - Fail-closed on errors
+ * - HTTPS/SSL verification enforced
  */
+
+import { secureFetch } from '@/lib/security/secure-fetch';
 
 export interface AuthorizeNetRequest {
   amount: number;

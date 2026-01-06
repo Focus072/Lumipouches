@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -8,11 +8,26 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
   });
+
+  // Fetch CSRF token on mount
+  useEffect(() => {
+    fetch('/api/csrf-token')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.token) {
+          setCsrfToken(data.data.token);
+        }
+      })
+      .catch(() => {
+        // CSRF token is optional, continue without it
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +52,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          ...(csrfToken && { csrfToken }),
         }),
       });
 
