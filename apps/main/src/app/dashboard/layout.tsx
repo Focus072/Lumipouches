@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getMe } from '@/lib/api';
+import SessionTimeout from '@/components/SessionTimeout';
 
 
 export default function DashboardLayout({
@@ -118,6 +119,7 @@ export default function DashboardLayout({
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {children}
       </main>
+      <SessionTimeout onLogout={handleLogout} />
     </div>
   );
 }

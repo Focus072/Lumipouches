@@ -32,6 +32,26 @@ const ERROR_MESSAGES: Record<string, UserFriendlyError> = {
     title: 'Authentication Required',
     action: 'Please sign in and try again.',
   },
+  INVALID_TOKEN: {
+    message: 'The verification or reset link is invalid or has expired.',
+    title: 'Invalid Link',
+    action: 'Please request a new verification or reset link.',
+  },
+  TOKEN_EXPIRED: {
+    message: 'The verification or reset link has expired.',
+    title: 'Link Expired',
+    action: 'Please request a new verification or reset link.',
+  },
+  SESSION_EXPIRED: {
+    message: 'Your session has expired. Please log in again.',
+    title: 'Session Expired',
+    action: 'Please log in again to continue.',
+  },
+  EMAIL_SEND_FAILED: {
+    message: 'We could not send the email. Please try again later.',
+    title: 'Email Error',
+    action: 'Please try again or contact support if the problem persists.',
+  },
   
   // Rate limiting
   RATE_LIMIT_EXCEEDED: {

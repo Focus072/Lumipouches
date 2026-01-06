@@ -167,10 +167,10 @@ export default function LoginPageClient() {
                 {loading ? 'LOGGING IN...' : 'LOG IN'}
               </button>
 
-              <div className="text-center space-y-2">
-                <Link href="/auth/login" className="text-sm text-blue-600 hover:underline block">
-                  Reset/Forgot password?
-                </Link>
+                  <div className="text-center space-y-2">
+                    <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:underline block">
+                      Reset/Forgot password?
+                    </Link>
                 <p className="text-sm text-gray-600">
                   Don&apos;t have an account?{' '}
                   <Link href="/auth/signup" className="text-blue-600 hover:underline font-medium">

@@ -5,13 +5,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@lumi/db';
+import { prisma, ActorType } from '@lumi/db';
 import { hashPassword, generateSessionToken } from '@/lib/api-auth';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/security/rate-limit';
 import { validateCsrfToken, getCsrfIdentifier } from '@/lib/security/csrf';
 import { sanitizeEmail, sanitizeString } from '@/lib/security/sanitize';
 import { formatApiError } from '@/lib/utils/error-messages';
 import { logError } from '@/lib/services/monitoring';
+import { sendEmail, generateEmailVerificationEmail } from '@/lib/services/email';
 import crypto from 'crypto';
 
 const signupSchema = z.object({
@@ -89,12 +90,20 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    // Create customer user
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date();
+    verificationExpires.setDate(verificationExpires.getDate() + 7); // 7 days expiry
+
+    // Create customer user (email not verified yet)
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         role: 'CUSTOMER',
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
       },
     });
 
@@ -112,11 +121,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send verification email
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`;
+    
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Verify Your Email - Lumi Pouches',
+        html: generateEmailVerificationEmail({
+          verificationUrl,
+          expiresIn: '7 days',
+        }),
+      });
+    } catch (emailError) {
+      await logError(emailError, {
+        metadata: { component: 'auth-api', endpoint: 'POST /api/auth/signup', userId: user.id },
+      });
+      // Continue even if email fails - user can request resend
+    }
+
     // Audit log
     await prisma.auditEvent.create({
       data: {
         actorUserId: user.id,
-        actorType: 'USER',
+        actorType: ActorType.USER,
         action: 'SIGNUP',
         entityType: 'USER',
         entityId: user.id,
@@ -133,7 +161,9 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           role: user.role,
+          emailVerified: false,
         },
+        message: 'Account created successfully. Please check your email to verify your account.',
       },
     });
   } catch (error) {

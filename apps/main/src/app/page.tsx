@@ -181,10 +181,10 @@ export default function LandingPage() {
                 </Link>
               </div>
 
-              <div className="text-center space-y-2">
-                <Link href="/auth/login" className="text-sm text-blue-600 hover:underline block">
-                  Reset/Forgot password?
-                </Link>
+                  <div className="text-center space-y-2">
+                    <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:underline block">
+                      Reset/Forgot password?
+                    </Link>
                 <div className="text-sm text-gray-600">
                   Or{' '}
                   <Link href="/products" className="text-blue-600 hover:underline font-medium">

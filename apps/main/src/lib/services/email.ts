@@ -238,3 +238,105 @@ export function generateShippingNotificationEmail(data: {
   `;
 }
 
+/**
+ * Generate password reset email HTML
+ */
+export function generatePasswordResetEmail(data: {
+  resetUrl: string;
+  expiresIn: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9fafb; }
+        .button { display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .warning { background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 15px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Reset Your Password</h1>
+        </div>
+        <div class="content">
+          <p>Hello,</p>
+          <p>We received a request to reset your password for your Lumi Pouches account.</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.resetUrl}" class="button">Reset Password</a>
+          </div>
+          
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #4F46E5;">${data.resetUrl}</p>
+          
+          <div class="warning">
+            <p><strong>This link will expire in ${data.expiresIn}.</strong></p>
+            <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+          </div>
+        </div>
+        <div class="footer">
+          <p>This is an automated message. Please do not reply to this email.</p>
+          <p>©2025 LUMI POUCHES. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * Generate email verification email HTML
+ */
+export function generateEmailVerificationEmail(data: {
+  verificationUrl: string;
+  expiresIn: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9fafb; }
+        .button { display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Verify Your Email Address</h1>
+        </div>
+        <div class="content">
+          <p>Hello,</p>
+          <p>Thank you for creating an account with Lumi Pouches! Please verify your email address to complete your registration.</p>
+          
+          <div style="text-align: center;">
+            <a href="${data.verificationUrl}" class="button">Verify Email</a>
+          </div>
+          
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #4F46E5;">${data.verificationUrl}</p>
+          
+          <p><strong>This link will expire in ${data.expiresIn}.</strong></p>
+          <p>If you did not create an account, please ignore this email.</p>
+        </div>
+        <div class="footer">
+          <p>This is an automated message. Please do not reply to this email.</p>
+          <p>©2025 LUMI POUCHES. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
