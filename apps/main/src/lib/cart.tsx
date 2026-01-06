@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
   productId: string;
@@ -26,10 +26,35 @@ interface CartContextType {
   getTotalItems: () => number;
 }
 
+const CART_STORAGE_KEY = 'lumi_cart';
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Load cart from localStorage on mount
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Save cart to localStorage whenever items change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      } catch (error) {
+        // Ignore localStorage errors (e.g., quota exceeded)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to save cart to localStorage:', error);
+        }
+      }
+    }
+  }, [items]);
 
   const addItem = (product: CartItem['product'], quantity: number) => {
     setItems((prev) => {

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
 import { createOrder, createAddress, type ApiResponse } from '@/lib/api';
+import FormField from '@/components/FormField';
+import { validationRules } from '@/lib/utils/form-validation';
 
 const US_STATES = [
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -247,45 +249,33 @@ export default function CheckoutPage() {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="customerFirstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  id="customerFirstName"
-                  required
-                  value={customerFirstName}
-                  onChange={(e) => setCustomerFirstName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="customerLastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
-                </label>
-                <input
-                  type="text"
-                  id="customerLastName"
-                  required
-                  value={customerLastName}
-                  onChange={(e) => setCustomerLastName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="customerDateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
-                  Date of Birth (YYYY-MM-DD) *
-                </label>
-                <input
-                  type="date"
-                  id="customerDateOfBirth"
-                  required
-                  value={customerDateOfBirth}
-                  onChange={(e) => setCustomerDateOfBirth(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+              <FormField
+                label="First Name"
+                id="customerFirstName"
+                type="text"
+                value={customerFirstName}
+                onChange={setCustomerFirstName}
+                rules={[validationRules.required()]}
+                required
+              />
+              <FormField
+                label="Last Name"
+                id="customerLastName"
+                type="text"
+                value={customerLastName}
+                onChange={setCustomerLastName}
+                rules={[validationRules.required()]}
+                required
+              />
+              <FormField
+                label="Date of Birth"
+                id="customerDateOfBirth"
+                type="date"
+                value={customerDateOfBirth}
+                onChange={setCustomerDateOfBirth}
+                rules={[validationRules.required(), validationRules.dateOfBirth()]}
+                required
+              />
               <div className="flex items-center">
                 <input
                   type="checkbox"

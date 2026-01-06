@@ -80,11 +80,13 @@ export function trackEvent(eventName: string, properties?: Record<string, any>):
   if (!isEnabled) return;
 
   // Basic logging (can be extended to send to analytics service)
-  console.log('Event tracked:', {
-    event: eventName,
-    properties,
-    timestamp: new Date().toISOString(),
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Event tracked:', {
+      event: eventName,
+      properties,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
   // TODO: Integrate with analytics service (e.g., Mixpanel, Amplitude)
 }
@@ -97,9 +99,10 @@ export function trackMetric(metricName: string, value: number, tags?: Record<str
   if (!isEnabled) return;
 
   // Basic logging (can be extended to send to metrics service)
-  console.log('Metric tracked:', {
-    metric: metricName,
-    value,
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Metric tracked:', {
+      metric: metricName,
+      value,
     tags,
     timestamp: new Date().toISOString(),
   });

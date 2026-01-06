@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getProducts, type ApiResponse } from '@/lib/api';
 import { useCart } from '@/lib/cart';
+import { ProductListSkeleton } from '@/components/LoadingSkeleton';
 
 interface Product {
   id: string;
@@ -174,7 +175,7 @@ export default function ProductsPage() {
         )}
 
         {loading ? (
-          <div className="text-center py-12 text-gray-600">Loading products...</div>
+          <ProductListSkeleton count={6} />
         ) : products.length === 0 ? (
           <div className="text-center py-12 text-gray-600">No products available</div>
         ) : (

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { getMyOrder, type ApiResponse } from '@/lib/api';
+import { FormSkeleton } from '@/components/LoadingSkeleton';
 
 export default function OrderTrackingPage() {
   const router = useRouter();
@@ -47,8 +48,20 @@ export default function OrderTrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <Link href="/" className="text-2xl font-bold text-gray-900">
+              Lumi
+            </Link>
+          </div>
+        </header>
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <FormSkeleton />
+            <FormSkeleton />
+          </div>
+        </main>
       </div>
     );
   }
@@ -119,19 +132,41 @@ export default function OrderTrackingPage() {
           </div>
 
           {order.trackingNumber && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-md">
-              <div className="text-sm font-medium text-blue-900 mb-1">Tracking Information</div>
-              <div className="text-sm text-blue-700">
-                <strong>Carrier:</strong> {order.carrier}
-              </div>
-              <div className="text-sm text-blue-700">
-                <strong>Tracking Number:</strong> {order.trackingNumber}
-              </div>
-              {order.shippedAt && (
-                <div className="text-sm text-blue-700">
-                  <strong>Shipped:</strong> {new Date(order.shippedAt).toLocaleDateString()}
+            <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-blue-900 mb-2">📦 Tracking Information</div>
+                  <div className="space-y-1 text-sm text-blue-700">
+                    <div>
+                      <strong>Carrier:</strong> {order.carrier}
+                    </div>
+                    <div>
+                      <strong>Tracking Number:</strong>{' '}
+                      <a
+                        href={`https://www.google.com/search?q=${order.carrier}+tracking+${order.trackingNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline font-mono"
+                      >
+                        {order.trackingNumber}
+                      </a>
+                    </div>
+                    {order.shippedAt && (
+                      <div>
+                        <strong>Shipped:</strong> {new Date(order.shippedAt).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+                <a
+                  href={`https://www.google.com/search?q=${order.carrier}+tracking+${order.trackingNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                >
+                  Track Package
+                </a>
+              </div>
             </div>
           )}
         </div>
