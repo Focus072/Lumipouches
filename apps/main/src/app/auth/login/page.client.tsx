@@ -58,11 +58,11 @@ export default function LoginPageClient() {
         const userData = await userResponse.json();
         const userRole = userData.data?.role;
         
-        // Redirect based on role
+        // Redirect based on role: Admin → /admin, Customer → /products
         if (userRole === 'ADMIN' || userRole === 'FULFILLMENT' || userRole === 'READ_ONLY') {
-          router.push('/dashboard');
+          router.push('/admin');
         } else {
-          router.push('/account');
+          router.push('/products');
         }
       } else {
         setError(data.error?.message || 'Login failed');

@@ -39,8 +39,9 @@ export default function AdminDashboardLayout({
 
         const data = await response.json();
         if (data.success && data.data) {
-          if (data.data.role !== 'ADMIN') {
-            router.push('/account');
+          // Only allow admin roles (ADMIN, FULFILLMENT, READ_ONLY)
+          if (data.data.role !== 'ADMIN' && data.data.role !== 'FULFILLMENT' && data.data.role !== 'READ_ONLY') {
+            router.push('/products');
             return;
           }
           setUser(data.data);
