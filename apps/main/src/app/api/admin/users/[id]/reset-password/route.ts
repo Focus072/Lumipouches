@@ -12,6 +12,9 @@ const resetPasswordSchema = z.object({
   newPassword: z.string().min(8),
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

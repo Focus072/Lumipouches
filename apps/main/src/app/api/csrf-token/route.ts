@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateCsrfToken, storeCsrfToken, getCsrfIdentifier } from '@/lib/security/csrf';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     // Generate or get a session ID from cookie

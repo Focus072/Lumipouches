@@ -15,6 +15,9 @@ import { logError } from '@/lib/services/monitoring';
 import { sendEmail, generateEmailVerificationEmail } from '@/lib/services/email';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),

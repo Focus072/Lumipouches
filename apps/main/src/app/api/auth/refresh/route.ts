@@ -9,6 +9,9 @@ import { authenticateRequest } from '@/lib/api-auth';
 import { generateSessionToken } from '@/lib/api-auth';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   try {
     const user = await authenticateRequest(request);

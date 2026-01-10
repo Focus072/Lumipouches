@@ -10,6 +10,9 @@ import { z } from 'zod';
 import { prisma, ActorType, UserRole } from '@lumi/db';
 import { requireAdmin } from '@/lib/api-auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const updateUserSchema = z.object({
   email: z.string().email().optional(),
   role: z.nativeEnum(UserRole).optional(),

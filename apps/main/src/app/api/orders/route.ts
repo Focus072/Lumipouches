@@ -10,6 +10,9 @@ import { prisma } from '@lumi/db';
 import { authenticateRequest, requireAuth } from '@/lib/api-auth';
 import { createOrder } from '@/lib/order-helpers';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const createOrderSchema = z.object({
   shippingAddressId: z.string().min(1),
   billingAddressId: z.string().min(1),

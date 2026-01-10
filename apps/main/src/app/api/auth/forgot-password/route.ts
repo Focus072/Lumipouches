@@ -12,6 +12,9 @@ import { logError } from '@/lib/services/monitoring';
 import { sendEmail, generatePasswordResetEmail } from '@/lib/services/email';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });

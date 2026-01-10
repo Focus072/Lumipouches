@@ -14,6 +14,9 @@ import { formatApiError } from '@/lib/utils/error-messages';
 import { logError } from '@/lib/services/monitoring';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),

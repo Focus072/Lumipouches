@@ -9,6 +9,9 @@ import { z } from 'zod';
 import { prisma, ActorType, FlavorType } from '@lumi/db';
 import { requireAdmin } from '@/lib/api-auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const createProductSchema = z.object({
   name: z.string().min(1),
   sku: z.string().min(1),

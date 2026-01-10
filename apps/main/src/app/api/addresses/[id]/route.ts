@@ -22,6 +22,9 @@ const updateAddressSchema = z.object({
   isDefault: z.boolean().optional(),
 }).partial();
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

@@ -9,6 +9,9 @@ import { prisma, ActorType } from '@lumi/db';
 import { formatApiError } from '@/lib/utils/error-messages';
 import { logError } from '@/lib/services/monitoring';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const verifyEmailSchema = z.object({
   token: z.string().min(1),
 });

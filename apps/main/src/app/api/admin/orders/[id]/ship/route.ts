@@ -21,6 +21,9 @@ const s3Client = new S3Client({
   },
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

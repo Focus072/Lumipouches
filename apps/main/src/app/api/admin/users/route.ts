@@ -9,6 +9,9 @@ import { z } from 'zod';
 import { prisma, ActorType, UserRole } from '@lumi/db';
 import { requireAdmin, hashPassword } from '@/lib/api-auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),

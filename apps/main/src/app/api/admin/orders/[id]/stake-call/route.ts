@@ -12,6 +12,9 @@ const stakeCallSchema = z.object({
   notes: z.string().min(1),
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
