@@ -64,7 +64,7 @@ export function validateCsrfToken(identifier: string, token: string): boolean {
 
 /**
  * Get CSRF token identifier from request
- * Uses cookie-based session ID, Authorization header, or IP address as fallback
+ * Uses cookie-based session ID as primary method (most reliable and consistent)
  */
 export function getCsrfIdentifier(request: any): string {
   // For NextRequest, try to get from cookies first (most reliable)
@@ -77,11 +77,13 @@ export function getCsrfIdentifier(request: any): string {
     }
     
     if (sessionId) {
+      // Use session ID as identifier (consistent with token generation)
       return crypto.createHash('sha256').update(sessionId).digest('hex').substring(0, 16);
     }
   }
 
-  // Try to get from Authorization header (session token)
+  // If no cookie, this is a new session - return a temporary identifier
+  // This will cause validation to fail, which is expected for new sessions without a token
   const headers = request?.headers || {};
   const getHeader = (name: string) => {
     if (typeof headers.get === 'function') {
@@ -91,19 +93,14 @@ export function getCsrfIdentifier(request: any): string {
     return headers[lowerName] || headers[name];
   };
 
-  const authHeader = getHeader('authorization');
-  if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    return crypto.createHash('sha256').update(token).digest('hex').substring(0, 16);
-  }
-  
-  // For development/localhost, use a consistent identifier based on user-agent
+  // For development, use a fallback based on user-agent + accept headers
   if (process.env.NODE_ENV === 'development') {
     const userAgent = getHeader('user-agent') || 'unknown';
-    return crypto.createHash('sha256').update(`dev-${userAgent}`).digest('hex').substring(0, 16);
+    const accept = getHeader('accept') || 'unknown';
+    return crypto.createHash('sha256').update(`dev-${userAgent}-${accept}`).digest('hex').substring(0, 16);
   }
   
-  // Production: Fallback to IP address
+  // Production: Fallback to IP address (less ideal but works as fallback)
   const forwarded = getHeader('x-forwarded-for');
   const realIp = getHeader('x-real-ip');
   const cfConnectingIp = getHeader('cf-connecting-ip');

@@ -16,7 +16,9 @@ export default function LoginPageClient() {
 
   // Fetch CSRF token on mount
   useEffect(() => {
-    fetch('/api/csrf-token')
+    fetch('/api/csrf-token', {
+      credentials: 'include', // Include cookies for session ID
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data?.token) {
@@ -37,6 +39,7 @@ export default function LoginPageClient() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for CSRF validation
         body: JSON.stringify({
           ...formData,
           ...(csrfToken && { csrfToken }),

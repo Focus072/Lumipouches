@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
       sessionId = crypto.randomBytes(16).toString('hex');
     }
 
-    const identifier = getCsrfIdentifier(request);
+    // Use session ID as the identifier (consistent across requests)
+    const identifier = crypto.createHash('sha256').update(sessionId).digest('hex').substring(0, 16);
     const token = generateCsrfToken();
     
     // Store token for this identifier

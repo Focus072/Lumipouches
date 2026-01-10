@@ -17,7 +17,9 @@ export default function RegisterPage() {
 
   // Fetch CSRF token on mount
   useEffect(() => {
-    fetch('/api/csrf-token')
+    fetch('/api/csrf-token', {
+      credentials: 'include', // Include cookies for session ID
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data?.token) {
@@ -49,6 +51,7 @@ export default function RegisterPage() {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for CSRF validation
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
