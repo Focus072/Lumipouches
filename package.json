@@ -13,7 +13,8 @@
     "db:generate": "pnpm --filter db generate",
     "db:migrate": "pnpm --filter db migrate",
     "db:studio": "pnpm --filter db studio",
-    "create-admin": "pnpm --filter api create-admin"
+    "create-admin": "pnpm --filter api create-admin",
+    "test:backend": "node scripts/test-backend.js"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
