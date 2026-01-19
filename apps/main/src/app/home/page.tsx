@@ -52,31 +52,52 @@ export default function LandingPage() {
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/home" className="text-3xl font-bold text-gray-900">
+      <header className="bg-black text-gray-300 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Main Navigation */}
+          <div className="flex justify-between items-center py-4 border-b border-gray-800">
+            <Link href="/home" className="text-3xl font-bold text-white">
               LUMI
             </Link>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/products" className="text-gray-700 hover:text-gray-900 font-medium">
-                SHOP
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link href="/home" className="text-white hover:text-gray-300 font-medium underline">
+                Home
               </Link>
-              <Link href="/account" className="text-gray-700 hover:text-gray-900 font-medium">
-                ACCOUNT
+              <Link href="/products" className="text-gray-300 hover:text-white font-medium">
+                Our Flavors
               </Link>
+              <Link href="/products?category=incoming" className="text-gray-300 hover:text-white font-medium">
+                Incoming Drops
+              </Link>
+              <Link href="/reviews" className="text-gray-300 hover:text-white font-medium">
+                Customer Reviews
+              </Link>
+              <Link href="/contact" className="text-gray-300 hover:text-white font-medium">
+                Contact
+              </Link>
+              <Link href="/wholesale" className="text-gray-300 hover:text-white font-medium">
+                Wholesale Application
+              </Link>
+            </nav>
+            <div className="flex items-center space-x-4">
               <Link
                 href="/cart"
                 className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
               >
                 CART
               </Link>
-            </nav>
-            <button className="md:hidden text-gray-700">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+              <button className="md:hidden text-gray-300">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          {/* SALE Banner */}
+          <div className="py-2">
+            <Link href="/products?sale=true" className="text-gray-300 hover:text-white font-medium">
+              SALE
+            </Link>
           </div>
         </div>
       </header>
